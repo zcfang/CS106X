@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<!-- saved from url=(0089)https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/madlibs-spec.html -->
+<html><!-- set these variables for your course each quarter --><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<!--
+		Copyright notice:
+		This file and all linked documents are, unless otherwise specified, authored by Marty Stepp and/or Stanford University, and may not be copied, redistributed, or modified without explicit permission of the course instructor.
+		-->
+		<title>CS 106X: Programming Abstractions (Accelerated) - Mad Libs</title>
+
+		
+		<meta name="author" content="Marty Stepp">
+		<meta name="description" content="Course web site for CS 106X, a second introductory computer science course (CS2) taught in C++.">
+		<meta name="keywords" content="programming, abstractions, C++, Marty Stepp, CS 106X, Stanford University, computer science">
+		<meta name="HandheldFriendly" content="true">
+		<meta name="viewport" content="width=device-width, height=device-height, user-scalable=no">
+
+		<meta id="WEEK1_SUN" name="WEEK1_SUN" content="Sep 24 2017 12:00 AM">
+
+		<!-- stop the web browser from ever caching this page or its images -->
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+
+		<link href="./Mad Libs_files/homework.css" type="text/css" rel="stylesheet">
+		<link href="./Mad Libs_files/default.css" type="text/css" rel="stylesheet">
+		<link href="./Mad Libs_files/font-awesome.min.css" type="text/css" rel="stylesheet">
+		<link href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/images/stanford-favicon.png" type="image/png" rel="shortcut icon">
+		<link href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/images/stanford-favicon.png" type="image/png" rel="icon">
+
+		<script src="./Mad Libs_files/specialfx.js" type="text/javascript"></script>
+		<script src="./Mad Libs_files/web-components-helper.js" type="text/javascript"></script>
+		<script src="./Mad Libs_files/relative-dates.js" type="text/javascript"></script>
+		<script src="./Mad Libs_files/sorttable.js" type="text/javascript"></script>
+		<script src="./Mad Libs_files/stanford.js" type="text/javascript"></script>
+		<script src="./Mad Libs_files/highlight.pack.js" type="text/javascript"></script>
+
+		<script type="text/javascript">
+			(function() {
+				// remove initial \n from pre blocks (avoid extraneous blank line with highlight.js)
+				// also replace tabs with 4 spaces
+				var trimPreBlocks = function() {
+					var pres = document.querySelectorAll("pre code");
+					for (var i = 0; i < pres.length; i++) {
+						var pre = pres[i];
+						var text = pre.innerHTML;
+						var changed = false;
+						if (text[0] == "\r" || text[0] == "\n") {
+							text = text.substring(1);
+							changed = true;
+						}
+						if (text.indexOf && text.indexOf("\t") >= 0) {
+							text = text.replace(/\t/g, "    ");
+							changed = true;
+						}
+
+						if (changed) {
+							pre.innerHTML = text;
+						}
+					}
+				};
+
+				window.addEventListener("load", function() {
+					SpecialEffects.setupClickToShowAreas();
+					trimPreBlocks();
+				});
+				if (hljs) {
+					hljs.initHighlightingOnLoad();
+				}
+			})();
+		</script>
+	</head>
+
+	<body>
+		<div id="mainarea" class="mainarea">
+
+
+<h1>Stanford CS 106X: Mad Libs</h1>
+
+<p class="credits">
+	Assignment by Marty Stepp and Victoria Kirst, with inspiration from Stuart Reges at U. of Washington.
+</p>
+
+<ul class="documentoutline">
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/madlibs-spec.html#links">Links</a></li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/madlibs-spec.html#description">Description</a></li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/madlibs-spec.html#logs">Logs</a></li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/madlibs-spec.html#inputfiles">Input Files</a></li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/madlibs-spec.html#implementation">Implementation</a></li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/madlibs-spec.html#style">Style</a></li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/madlibs-spec.html#creative">Creative Aspect</a></li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/madlibs-spec.html#faq">FAQ</a></li>
+</ul>
+
+<p>
+	This problem is about C++ functions, strings, reading files, using libraries, and decomposing a large problem.
+</p>
+
+<p class="pairprogrammingno">
+	This is an <strong>individual assignment</strong>.
+	Write your own solution and do not work in a pair/group on this program.
+</p>
+
+
+<h2 id="links">Links:</h2>
+
+<div>
+	<div class="largefileboxwithdescription">
+		<div class="largefilebox starterziplink">
+			<a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/madlibs-starter-files.zip"><img src="./Mad Libs_files/icon48-zip.gif" class="iconlarge" alt="icon"><br>starter code</a>
+		</div>
+		
+		<div>
+			<p>
+				We provide a ZIP archive with a starter project that you should download and open with Qt Creator.
+				You will edit and turn in only the following files.
+				The ZIP contains other files/libraries; do not modify these.
+				Your code must work with the other files unmodified.
+			</p>
+
+			<ul>
+				<li>
+					<span class="filename">madlibs.cpp</span>, the C++ code for your solution
+				</li>
+				<li>
+					<span class="filename">mymadlib.txt</span>, your own unique Mad Libs input file representing a story to be filled in
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="largefileboxwithdescription">
+		<div class="largefilebox">
+			<a class="popup honorcodelink" href="https://cs198.stanford.edu/paperless/" target="_blank"><img class="iconlarge" src="./Mad Libs_files/icon48-paperless.gif" alt="icon"><br>turn in</a>
+		</div>
+
+		<div>
+			<p>
+				When you are finished, submit your assignment using our <strong>Paperless</strong> web system.
+				You can turn in all parts of the assignment together, or turn in each problem separately; it is up to you.
+			</p>
+		</div>
+	</div>
+
+	<div class="largefileboxwithdescription">
+		<div class="largefilebox">
+			<a class="demojarlink" href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/madlibs-demo.jar"><img src="./Mad Libs_files/icon48-jar.gif" class="iconlarge" alt="icon"><br>demo JAR</a>
+		</div>
+		
+		<div>
+			<p>
+				If you want to further verify the expected behavior of your program, you can download the following provided sample solution demo JAR and run it.
+				If the behavior of our demo in any way conflicts with the information in this spec, you should favor the spec over the demo.
+			</p>
+
+			<div><div class="howtorunsamplesolution clicktoshow" rel="How to run it?" style="opacity: 1;">
+<h3 id="howtorunsamplesolution" class="faqheading">"How do I run the assignment solution demos?"</h3>
+
+<p>
+	<!--
+	You can run our sample solutions two ways: on your machine as a downloadable program "JAR", or in your browser as an "applet".
+	We recommend trying the JAR first.
+	-->
+	Our assignments offer a solution 'demo' that you can run to see the program's expected behavior.
+	On many machines, all you have to do is download the .jar file, then double-click it to run it.
+	But on some Macs, it won't work; your operating system will say that it doesn't know how to launch the file.
+	If you have that issue, download the file, go to the Downloads folder in your Finder, right-click on the file, and click Open, and then press Confirm.
+</p>
+
+<p>
+	Some Mac users see a security error such as, "cs106x-life-demo.jar can't be opened because it is from an unidentified developer."
+	To fix this, go to System Preferences → Security &amp; Privacy.
+	You will see a section about downloaded apps.
+	You should see a prompt asking if you would like to allow access to our solution JAR.
+	Follow the steps and then you should be able to open the demo.
+	<!--
+	System Preferences &rarr; Java, and whitelisting the web site <strong>https://web.stanford.edu</strong> .
+	If you see this security error message, you can try to follow <a class="popup" href="http://www.java.com/en/download/help/jcp_security.xml">these instructions</a> about reducing your security restrictions for running Java applets.
+	-->
+</p>
+
+<p>
+	If all else fails, you could run the demo JAR from a terminal.
+	Every operating system allows you to open a "terminal" or "console" window for typing raw system commands.
+	Open your operating system's terminal or console window (Google if you need to learn how to do this),
+	and then type:
+</p>
+
+<pre class="terminal">cd <em>DIRECTORY_WHERE_DEMO_JAR_IS_STORED</em>
+java -jar <em>JAR_FILE_NAME</em>
+</pre>
+
+<p>
+	For example, on a Mac machine, if your user name is jsmith12 and you have saved a demo JAR named hw1.jar in your Documents/106a directory, you would type:
+</p>
+
+<pre class="terminal">cd /users/jsmith12/Documents/106a
+java -jar hw1.jar
+</pre>
+
+<p>
+	Or on a Windows machine, if your user name is jsmith12 and you have saved a demo JAR named hw1.jar in your Documents/106a directory, you would type:
+</p>
+
+<pre class="terminal">cd C:\users\jsmith12\Documents\106a
+java -jar hw1.jar
+</pre>
+
+			</div></div>
+		</div>
+	</div>
+</div>
+
+
+<h2 id="description">Program Description:</h2>
+
+<p>
+	"Mad Libs" are short stories that have blanks called placeholders to be filled in.
+	In the non-computerized version of this game, one person asks a second person to fill in each of the placeholders without the second person knowing the overall story.
+	(For example, "Tell me a noun: ___")
+	Once all placeholders are filled in, the second person is shown the resulting story, often with humorous results.
+</p>
+
+<p>
+	In this assignment you prompt the user to enter a file name representing a Mad Lib story to be filled in, re-prompting until the user types the name of a file that exists.
+	Then the program reads the input file, prompting the user to fill in any placeholders that are found without showing the user the rest of the story.
+	Once the user has filled in all of the placeholders, the entire completed story is shown.
+</p>
+
+
+<h2 id="logs">Example Logs of Execution:</h2>
+
+<p>
+	Here is an example log of interaction from your program (with user input <span class="userinput">bolded</span>).
+	Your output must match this format exactly to earn full credit.  (We are very picky.)
+</p>
+
+<pre class="output">Welcome to CS 106X Mad Libs!
+I will ask you to provide various words
+and phrases to fill in a story.
+At the end, I will display your story to you.
+
+Mad Lib input file? <span class="userinput">bad.txt</span>
+Unable to open that file.  Try again.
+Mad Lib input file? <span class="userinput">What are you talking about??</span>
+Unable to open that file.  Try again.
+Mad Lib input file? <span class="userinput">tarzan.txt</span>
+
+Please type an adjective: <span class="userinput">silly</span>
+Please type a plural noun: <span class="userinput">apples</span>
+Please type a noun: <span class="userinput">frisbee</span>
+Please type an adjective: <span class="userinput">hungry</span>
+Please type a place: <span class="userinput">San Jose</span>
+Please type a plural noun: <span class="userinput">bees</span>
+Please type a noun: <span class="userinput">umbrella</span>
+Please type a funny noise: <span class="userinput">burp</span>
+Please type an adjective: <span class="userinput">shiny</span>
+Please type a noun: <span class="userinput">jelly donut</span>
+Please type an adjective: <span class="userinput">beautiful</span>
+Please type a plural noun: <span class="userinput">spoons</span>
+Please type a person's name: <span class="userinput">Keanu Reeves</span>
+
+Your Mad Lib story:
+One of the most silly characters in fiction is named
+"Tarzan of the apples." Tarzan was raised by an old
+frisbee and lives in the hungry jungle in the
+heart of darkest San Jose. He spends most of his time
+eating bees and swinging from tree to umbrella.
+Whenever he gets angry, he beats on his chest and says,
+"burp!" This is his war cry. Tarzan always dresses in
+shiny shorts made from the skin of his jelly donut
+and his best friend is the beautiful chimpanzee named
+Cheetah. He is supposed to be able to speak to elephants and
+spoons. In the movies, Tarzan is played by Keanu Reeves.
+</pre>
+<div class="caption">Example log of execution</div>
+
+<p>
+	Here are some additional expected output files to compare.
+	Your program's Console window has a File → Compare Output feature for checking your output, as well as a Load Input Script feature that can auto-type the user console input for you.
+	Use them!
+</p>
+
+<ul class="filelist">
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/output/madlibs-expected-output-1.txt"><img class="icon" src="./Mad Libs_files/icon_txt.gif" alt="icon"> test #1</a> (tarzan)</li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/output/madlibs-expected-output-2.txt"><img class="icon" src="./Mad Libs_files/icon_txt.gif" alt="icon"> test #2</a> (wannabe)</li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/output/madlibs-expected-output-3.txt"><img class="icon" src="./Mad Libs_files/icon_txt.gif" alt="icon"> test #3</a> (clothing)</li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/output/madlibs-expected-output-4.txt"><img class="icon" src="./Mad Libs_files/icon_txt.gif" alt="icon"> test #4</a> (university)</li>
+</ul>
+
+
+<h2 id="inputfiles">Input Files:</h2>
+
+<p>
+	The starter project contains several Mad Lib input files.
+	These input files are mostly just plain text, but they may also contain placeholders.
+	Placeholders are represented as ranges of characters that begin with &lt; and end with &gt;.
+	For example, the file <span class="filename">tarzan.txt</span> used in the previous log contains the following text.
+	Placeholders are <span class="placeholder">colored</span> for emphasis.
+</p>
+
+<div class="filewithlinenumbers">
+	<pre class="linenumbers">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre>
+
+	<pre class="inputfile">One of the most <span class="placeholder">&lt;adjective&gt;</span> characters in fiction is named
+"Tarzan of the <span class="placeholder">&lt;plural noun&gt;</span>." Tarzan was raised by an old
+<span class="placeholder">&lt;noun&gt;</span> and lives in the <span class="placeholder">&lt;adjective&gt;</span> jungle in the
+heart of darkest <span class="placeholder">&lt;place&gt;</span>. He spends most of his time
+eating <span class="placeholder">&lt;plural noun&gt;</span> and swinging from tree to <span class="placeholder">&lt;noun&gt;</span>.
+Whenever he gets angry, he beats on his chest and says,
+"<span class="placeholder">&lt;funny noise&gt;</span>!" This is his war cry. Tarzan always dresses in
+<span class="placeholder">&lt;adjective&gt;</span> shorts made from the skin of his <span class="placeholder">&lt;noun&gt;</span>
+and his best friend is the <span class="placeholder">&lt;adjective&gt;</span> chimpanzee named
+Cheetah. He is supposed to be able to speak to elephants and
+<span class="placeholder">&lt;plural noun&gt;</span>. In the movies, Tarzan is played by <span class="placeholder">&lt;person's name&gt;</span>.
+</pre>
+</div>
+<div class="caption">Contents of input file <span class="filename">tarzan.txt</span></div>
+
+<p>
+	Your program should break the input into lines so that you can look for all its placeholders.
+	Each placeholder token in the document causes the user to be prompted.
+	A placeholder could contain any number of words or characters inside it between the &lt; and &gt; characters.
+	The user's response to the prompt is inserted into the eventual output rather than the placeholder itself.
+	You should accept whatever response the user gives, even a multi-word answer or blank answer.
+	Your output Mad Lib story must retain the original spacing and placement of line breaks from the input story file.
+	If the input file contains no placeholders, just output its contents.
+</p>
+
+<p>
+	When prompting the user to fill in a placeholder, give a different prompt depending on whether the placeholder begins with a vowel (a, e, i, o, or u, case-insensitively).
+	If so, prompt for a response using "an".
+	If not, use "a".
+	For example, <code>&lt;noun&gt;</code> leads to "Please type a noun" while <code>&lt;adjective&gt;</code> leads to "Please type an adjective".
+</p>
+
+<p>
+	You may assume that a placeholder will appear entirely on a single line; no placeholder will ever span across multiple lines.
+	Notice that more than one placeholder might appear on the same line.
+	A given line could have <code>&lt;</code> or <code>&gt;</code> characters in it that are not part of placeholders, and these should be retained and included in the output.
+	You may assume that a placeholder token will contain at least one character between its <code>&lt;</code> and <code>&gt;</code>.
+	This means that you won't see a token with multiple placeholders right next to each other with no spaces between, such as <code>"&lt;noun&gt;&lt;noun&gt;&lt;noun&gt;"</code>.
+	(In other words, no file will contain the token <code>&lt;&gt;</code>).
+	You may also assume that no placeholder will contain a <code>&lt;</code> or <code>&gt;</code> character inside it, other than the ones that mark the start and the end of the placeholder.
+	Lastly, you may assume that no two placeholders will appear next to each other without any blank spaces between them, such as <code>&lt;noun&gt;&lt;noun&gt;&lt;noun&gt;</code> .
+</p>
+
+
+<h2 id="implementation">Implementation Details:</h2>
+
+<p>
+	Your program will be graded on functionality and style.
+	To achieve a high functionality score, test your program thoroughly with the provided input files and your own test inputs.
+	Here are some specific details about our expectations for your implementation:
+</p>
+
+<p>
+	<em>Collections:</em> You are forbidden from using collections (e.g. <code>Vector</code>, <code>Grid</code>, <code>Map</code>, etc.) on this program.
+	They are not needed, and we want you to practice manipulating strings and file streams rather than collections on this problem.
+</p>
+
+<p>
+	<em>I/O:</em>
+	Your program has a console-based user interface.
+	You should pop up the Stanford graphical console by including <code>"console.h"</code> (<a class="popup" href="http://web.stanford.edu/~stepp/cppdoc/console.html" target="_blank">documentation</a>) in your program.
+	Produce console output using <code>cout</code> and read console input using <code>cin</code>.
+	You may use the Stanford C++ library's console-related functions such as <code>getLine</code> (uppercase L) and <code>promptUserForFile</code> to help you read from the console.
+	See <code>simpio.h</code> (<a class="popup" href="http://web.stanford.edu/~stepp/cppdoc/simpio.html" target="_blank">documentation</a>) for more details.
+</p>
+
+<p>
+	You will also write code for reading input files.
+	Read a file using an <code>ifstream</code> object (<a class="popup" href="http://www.cplusplus.com/reference/fstream/ifstream/" target="_blank">documentation</a>), along with functions such as <code>getline</code> (lowercase L) to read lines from the file.
+	You may use the Stanford C++ library's file-related functions such as <code>fileExists</code> to help you read files.
+	See <code>filelib.h</code> (<a class="popup" href="http://web.stanford.edu/~stepp/cppdoc/filelib.html" target="_blank">documentation</a>) for more details.
+	We prefer for you to write a line-based or word-based solution, not a single-<code>char</code>-based solution (e.g. one based on (<code>input.get()</code> or similar).
+	Make sure to close your input file streams when done reading.
+</p>
+
+<p>
+	<em>Strings:</em> A non-trivial part of the program involves string manipulation.
+	You may want to look up members of the C++ <code>string</code> class (<a class="popup" href="http://www.cplusplus.com/reference/string/string/" target="_blank">documentation</a>) such as <code>find</code>, <code>length</code>, <code>substr</code>, and so on.
+</p>
+
+
+<h2 id="creative">Creative Aspect, <span class="filename">mymadlib.txt</span>:</h2>
+
+<p>
+	Along with your code, submit a file <span class="filename">mymadlib.txt</span> with a story of your own creation, suitable for use as input to your program.
+	This is worth a small part of your grade.
+	For full credit, your story should be at least 8 lines long and at least five (5) placeholders, and should not be extremely similar to an existing input file.
+</p>
+
+
+<h2 id="style">Style Details:</h2>
+
+<p>
+	To achieve a high style score, submit a program with high code quality that conforms to the guidelines presented in our course.
+	There are many general C++ coding styles that you should follow, such as naming, indentation, commenting, avoiding redundancy, etc.
+	While there are many valid programming styles in various contexts, the most important overall stylistic trait a programmer can have is the ability to be given a set of style guidelines and follow them rigorously and consistently.
+	In the context of this course, our style guides and constraints are the laws of the land and are not open for debate.
+</p>
+
+<p>
+	Before getting started, you should read our <a class="popup" href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/styleguide.shtml" target="_blank"><strong>Style Guide</strong></a> for information about expected coding style.
+	You are expected to follow the Style Guide on all homework code.
+	The following are some points of emphasis and style contraints specific to this problem:
+</p>
+
+<p>
+	<em>C++ idioms:</em>
+	For full credit, you must use C++ facilities (<code>cout</code>, <code>ifstream</code>, <code>string</code>) instead of C equivalents (<code>printf</code>, <code>fopen</code>, <code>char*</code>).
+</p>
+
+<p>
+	<em>Procedural decomposition:</em>
+	Your <code>main</code> function should represent a concise summary of the overall program.
+	It is okay for <code>main</code> to contain some code, such as calls to other functions or brief console output statements to <code>cout</code>.
+	But <code>main</code> should not perform too large a share of the overall work itself directly, such as reading the lines of the input file or prompting the user to replace placeholders.
+	Instead, it should make calls to other functions to help it achieve the overall goal.
+	You should declare <strong>function prototypes</strong> (each function's header followed by a semicolon) near the top of your file for all functions besides <code>main</code>, regardless of whether this is necessary for the program to compile.
+</p>
+
+<p>
+	Each function should perform a single clear and coherent task.
+	No one function should do too large a share of the overall work.
+	As a rough estimate, a function whose body (excluding the header and closing brace) has more than 30 lines is likely too large.
+	You should avoid "chaining" long sequences of function calls together without coming back to <code>main</code>, as described in the Procedural Design Heuristics handout on the course web site.
+	Your functions should also be used to help you avoid <strong>redundant code</strong>.
+	If you are performing identical or very similar commands repeatedly, factor out the common code and logic into a helper function, or otherwise remove the redundancy.
+</p>
+
+<p>
+	<em>Parameters, Returns, Values, References:</em>
+	Since your program will have several functions and those functions will want to share information, you will need to appropriately pass parameters and/or return values between the functions.
+	Each function's parameters and return values should be well chosen.
+	Do not declare unnecessary parameters that are not needed by your function.
+	A particular point of emphasis on this assignment is that you should demonstrate that you understand when it is proper to <strong>pass by reference</strong>, and when it is proper for a parameter to be declared <strong><code>const</code></strong>.
+	You should also demonstrate that you understand when it is better to return a result and when it is better to store a result into an 'output' reference parameter.
+</p>
+
+<p>
+	<em>Variables and types:</em>
+	Use descriptive variable and function names.
+	Use appropriate data types for each variable and parameter; for example, do not use a <code>double</code> if the variable is intended to hold an integer, and do not use an <code>int</code> if the variable is storing a <code>true</code>/<code>false</code> state that would be better suited to a <code>bool</code>.
+	When manipulating strings, favor talking to <code>string</code> objects over individual <code>char</code> values when possible, and use the <code>string</code> object's built-in methods as opposed to rewriting similar behavior yourself.
+	Do not declare any global variables or <code>static</code> variables; every variable in your program must be declared inside one of your functions and must exist in only that scope.
+	No single variable's scope should extend beyond a single invocation of a single function.
+</p>
+
+<p>
+	<em>Commenting:</em>
+	Your code should have adequate commenting.
+	The top of your file should have a descriptive comment header with your name, a description of the assignment, and a citation of all sources you used to help you write your program.
+	Each function should have a comment header describing that function's behavior, any parameters it accepts and any values it returns, and any assumptions the function makes about how it will be used.
+	For larger functions, you should also place a brief inline comment on any complex sections of code to explain what the code is doing.
+	See the programs written in lecture or the Course Style Guide for examples of proper commenting.
+</p>
+
+
+<h2 id="faq">Frequently Asked Questions (FAQ):</h2>
+
+<p>
+	For each assignment problem, we receive various frequent student questions.
+	The answers to some of those questions can be found by clicking the link below.
+</p>
+
+<div><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/madlibs-spec.html#"><strong>Mad Libs FAQ</strong> (click to show)</a><div class="faqarea clicktoshow" rel="Mad Libs FAQ" style="display: none;">
+<p>
+	NOTE: On this first assignment, many students have issues with setting up their Qt Creator software.
+	If your problem or issue is more about that software than it is about HW1 specifically, you should also check out our <a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/qt-creator-troubleshooting.shtml">Qt Creator troubleshooting page</a> for possible solutions.
+</p>
+
+<dl>
+	<dt id="partners">
+		Q: Can I work with a partner on this assignment?
+	</dt>
+	<dd>
+		A: No.
+		This assignment is an individual assignment, so you should work individually and submit your own solution.
+		Do not show your code to any other student and do not develop your solution with a partner.
+	</dd>
+
+	<dt id="wordsinplaceholder">
+		Q: How many words can be part of a placeholder?  Can I assume some maximum value?
+	</dt>
+	<dd>
+		A: You shouldn't assume any maximum.  A placeholder of <code>&lt;hi how are you I am fine OK bye&gt;</code> would be valid and should work in your program.
+	</dd>
+
+	<dt id="qtcreator">
+		Q: You said I need to use Qt Creator to write my homework, but I prefer a different editor (Visual Studio, Xcode, Eclipse, Netbeans, vim, emacs, etc.).
+		Can I use my favorite editor instead of Qt Creator?
+	</dt>
+	<dd>
+		A: Probably not.
+		We don't support this.
+		We are giving you out a starter project in Qt Creator's format, so if you were trying to use a different editor, you'd have to disassemble that starter project and put it back together in your editor's format, which might be difficult.
+		Also, if you have any problems getting things to work in your editor, we will not be willing to help you fix them.
+	</dd>
+
+	<dt id="qtcreatorfail">
+		Q: I'm having trouble getting Qt Creator to work!  Help!
+	</dt>
+	<dd>
+		A: Please make sure you followed the instructions in our <a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/qt-creator.shtml">Qt Creator</a> page.
+		If you are still having trouble, please see our <a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/qt-creator-troubleshooting.shtml">Tricky C++ Issues</a> page for some possible solutions.
+	</dd>
+
+	<dt id="permissiondenied">
+		Q: When I try to compile my program I see an error message, "cannot open output file ...\MadLibs.exe: Permission denied".
+		What does it mean?
+		How do I fix it?
+	</dt>
+	<dd>
+		A: It means that your Life executable is still running from the last time you ran/tested the program a moment ago.
+		Make sure to shut down any previously running instances of your program.
+		Click Qt Creator's "3 Application Output" tab and click any of the red square "stop" sign buttons you see.
+		You might also need to open your operating system's Task Manager to stop them all.
+	</dd>
+
+	<dt id="advancedmaterial">
+		Q: I already know a lot of C/C++ from my previous programming experience.
+		Can I use advanced features, such as pointers, on this assignment?
+	</dt>
+	<dd>
+		A: No; you should limit yourself to using the material that was taught in class so far.
+	</dd>
+
+	<dt id="files">
+		Q: Can I add any other files to the program, other than <code>madlibs.cpp</code>?
+		Can I add some classes to the program?
+	</dt>
+	<dd>
+		A: No; you should limit yourself to <code>madlibs.cpp</code> and functions defined in that file.
+	</dd>
+
+	<dt id="fileiocharbychar">
+		Q: I am having trouble reading the file character-by-character.
+		How do I detect the line endings and how do I know how many characters to read?
+	</dt>
+	<dd>
+		A: We don't recommend reading the file character-by-character.
+		Instead, repeatedly call <code>getline</code> on the file and then process that entire line.
+	</dd>
+
+	<dt id="fileio">
+		Q: I am having trouble reading the input files.
+		It always crashes with a "file not found" error.
+		What is wrong?
+	</dt>
+	<dd>
+		A: Remember that the input files are in the same directory as your program, so if the user types <code>"foo.txt"</code> you need to open <code>"foo.txt"</code> in your code with no path or directory name in front of the file name.
+		The grid input files should be found in the starter ZIP file in the <code>res</code> subdirectory of the overall project.
+		That's also where you can put your own custom <code>mymadlib.txt</code> file later when you make it.
+	</dd>
+
+	<dt id="symbolnotfounderror">
+		Q: What does this error mean?
+
+<pre>error: symbol(s) not found for architecture x86_64
+</pre>
+	</dt>
+	<dd>
+		A: This can happen when you are trying to call a function that you have not declared, or call a function with the wrong parameters.
+		Remember that you need to declare function prototypes (the function's name and parameters followed by a semicolon) at the top of your program for <code>main</code> to be able to see them.
+
+		<p>
+			Try clicking the "4 Compiler Output" tab button near the bottom of Qt Creator and reading the detailed output about exactly what symbol was not defined.
+		</p>
+	</dd>
+
+	<dt id="passifstream">
+		Q: Why can't I pass an <code>ifstream</code> file input stream as a parameter?
+	</dt>
+	<dd>
+		A: You must pass it by reference.
+	</dd>
+	<dt id="pregrade">
+		Q: Will my solution get full credit?
+		Is it written in the style you want?
+		Will I get marked off for this code?
+	</dt>
+	<dd>
+		A: In general we cannot answer these kinds of questions.
+		We call this "pre-grading."
+		The section leader/TA/instructor can't look over your entire program for mistakes or tell you exactly what things you will get marked off for; we don't have the resources to provide such a service, and even if we did, we want you to learn how to gain these intuitions on your own.
+		We'll grade you on the guidelines in the homework document, and we can help you with specific issues and questions about your code, but we cannot pre-evaluate your entire program for you or give you advance warning about every possible mistake or violation.
+	</dd>
+
+	<dt id="creativeindex">
+		Q: Is my <code>mymadlib.txt</code> file okay?
+		Will it get full credit?
+	</dt>
+	<dd>
+		A: Our grading is pretty lenient on a creative part aspect like this.
+		If it meets the criteria in the assignment spec, it should get full credit, even if it is not particularly creative or exciting.
+	</dd>
+</dl>
+
+</div></div>
+
+
+			<hr>
+
+			<p>
+				<em>Survey:</em>
+				After you turn in the assignment, we would love for you to fill out our <a class="popup" href="http://goo.gl/forms/abir2WG4ob" target="_blank">anonymous CS 106X homework survey</a> to tell us how much you liked / disliked the assignment, how challenging you found it, how long it took you, etc.
+				This information helps us improve future assignments.
+			</p>
+
+			<p>
+				<em>Honor Code Reminder:</em>
+				Please remember to follow the <strong>Honor Code</strong> when working on this assignment.
+				Submit your own work and do not look at others' solutions.
+				Also please do not give out your solution and do not place a solution to this assignment on a public web site or forum.
+				If you need help, please seek out our available resources to help you.
+			</p>
+
+			<p class="copyright">
+				Copyright © Stanford University, Marty Stepp, Victoria Kirst.
+				Licensed under Creative Commons Attribution 2.5 License.  All rights reserved.
+			</p>
+
+		</div> <!-- mainarea -->
+
+
+		<div id="honorcodemessage" class="popupwindow" style="display: none">
+			<div class="popupwindowbody">
+				<h2>Honor Code Reminder:</h2>
+				<p>
+					You are expected to follow the <a class="popup" href="http://honorcode.stanford.edu/" target="_blank"><strong>Stanford Honor Code</strong></a>.
+				</p>
+
+				<ul>
+					<li>
+						In your file's comment header, list both partners' names; also cite <em>all</em> sources of help, including books, web pages, friends, section leaders, etc.
+					</li>
+					<li>
+						Do not consult any assignment solutions that are not your (pair's) own.
+					</li>
+					<li>
+						Do not attempt to disguise any code that is not your (pair's) own.
+					</li>
+					<li>
+						Do not give out your assignment solution to another student (outside of your pair).
+					</li>
+					<li>
+						Do not post your homework solution code online.  (e.g. PasteBin, DropBox, web forums).
+					</li>
+					<li>
+						Please take steps to ensure that your (pair's) work is not easily copied by others.
+					</li>
+				</ul>
+				
+				<p>
+					Remember that we run <strong>similarity-detection software</strong> over all solutions,
+					including this quarter and past quarters, as well as any solutions we find on the web.
+				</p>
+
+				<div class="popupwindowbuttons">
+					<button id="honorcodeaccept">
+						<img src="./Mad Libs_files/icon_ok.gif" alt="icon">
+						I understand
+					</button>
+					<button id="honorcodecancel">
+						<img src="./Mad Libs_files/icon_cancel.gif" alt="icon">
+						Cancel
+					</button>
+				</div>
+
+				<p>
+					<strong>If you need help</strong> solving an assignment, we are happy to help you.
+					You can go to the <a class="popup" href="https://pointer3.stanford.edu/shifts" target="_blank">LaIR</a>,
+					or the <a class="popup" href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/piazza.shtml" target="_blank">course message forum</a>,
+					or <a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/staff.shtml">email your section leader</a>,
+					or visit the instructor / head TA during office hours.
+					<strong>You can do it!</strong>
+				</p>
+
+				<p>
+					See <a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/handouts.shtml">Course Information handout</a> for full Honor Code policies, or <a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/staff.shtml">email us</a> if you have any questions.
+				</p>
+			</div>
+		</div>
+
+	
+
+
+</body></html>
