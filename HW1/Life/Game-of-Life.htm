@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<!-- saved from url=(0086)https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/life-spec.html -->
+<html><!-- set these variables for your course each quarter --><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<!--
+		Copyright notice:
+		This file and all linked documents are, unless otherwise specified, authored by Marty Stepp and/or Stanford University, and may not be copied, redistributed, or modified without explicit permission of the course instructor.
+		-->
+		<title>CS 106X: Programming Abstractions (Accelerated) - Game of Life</title>
+
+		
+		<meta name="author" content="Marty Stepp">
+		<meta name="description" content="Course web site for CS 106X, a second introductory computer science course (CS2) taught in C++.">
+		<meta name="keywords" content="programming, abstractions, C++, Marty Stepp, CS 106X, Stanford University, computer science">
+		<meta name="HandheldFriendly" content="true">
+		<meta name="viewport" content="width=device-width, height=device-height, user-scalable=no">
+
+		<meta id="WEEK1_SUN" name="WEEK1_SUN" content="Sep 24 2017 12:00 AM">
+
+		<!-- stop the web browser from ever caching this page or its images -->
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+
+		<link href="./Game-of-Life_files/homework.css" type="text/css" rel="stylesheet">
+		<link href="./Game-of-Life_files/default.css" type="text/css" rel="stylesheet">
+		<link href="./Game-of-Life_files/font-awesome.min.css" type="text/css" rel="stylesheet">
+		<link href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/images/stanford-favicon.png" type="image/png" rel="shortcut icon">
+		<link href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/images/stanford-favicon.png" type="image/png" rel="icon">
+
+		<script src="./Game-of-Life_files/specialfx.js" type="text/javascript"></script>
+		<script src="./Game-of-Life_files/web-components-helper.js" type="text/javascript"></script>
+		<script src="./Game-of-Life_files/relative-dates.js" type="text/javascript"></script>
+		<script src="./Game-of-Life_files/sorttable.js" type="text/javascript"></script>
+		<script src="./Game-of-Life_files/stanford.js" type="text/javascript"></script>
+		<script src="./Game-of-Life_files/highlight.pack.js" type="text/javascript"></script>
+
+		<script type="text/javascript">
+			(function() {
+				// remove initial \n from pre blocks (avoid extraneous blank line with highlight.js)
+				// also replace tabs with 4 spaces
+				var trimPreBlocks = function() {
+					var pres = document.querySelectorAll("pre code");
+					for (var i = 0; i < pres.length; i++) {
+						var pre = pres[i];
+						var text = pre.innerHTML;
+						var changed = false;
+						if (text[0] == "\r" || text[0] == "\n") {
+							text = text.substring(1);
+							changed = true;
+						}
+						if (text.indexOf && text.indexOf("\t") >= 0) {
+							text = text.replace(/\t/g, "    ");
+							changed = true;
+						}
+
+						if (changed) {
+							pre.innerHTML = text;
+						}
+					}
+				};
+
+				window.addEventListener("load", function() {
+					SpecialEffects.setupClickToShowAreas();
+					trimPreBlocks();
+				});
+				if (hljs) {
+					hljs.initHighlightingOnLoad();
+				}
+			})();
+		</script>
+	</head>
+
+	<body>
+		<div id="mainarea" class="mainarea">
+
+
+<style type="text/css">
+	.gameoflifetable {
+		border: 2px solid black;
+		border-collapse: collapse;
+		font-family: Calibri, Helvetica, Arial, serif;
+		margin: auto;
+	}
+
+	.gameoflifetable td {
+		border: 2px solid black;
+		font-weight: bold;
+		height: 2em;
+		line-height: 2em;
+		text-align: center;
+		vertical-align: middle;
+		width: 2em;
+	}
+
+	.gameoflifetable td.em {
+		background-color: #bbb;
+	}
+
+	.inlinetables {
+		text-align: center;
+	}
+
+	.inlinetables .gameoflifetable {
+		display: inline-block;
+		margin-left: .5em;
+		margin-right: .5em;
+	}
+</style>
+
+<h1>Stanford CS 106X: Game of Life</h1>
+
+<p class="credits">
+	Assignment by Marty Stepp and Victoria Kirst, based on previous version by Julie Zelenski, with other revisions by Jerry Cain, Keith Schwarz, Cynthia Lee, etc.
+</p>
+
+<ul class="documentoutline">
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/life-spec.html#links">Links</a></li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/life-spec.html#description">Description</a></li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/life-spec.html#logs">Logs</a></li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/life-spec.html#inputfiles">Input Files</a></li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/life-spec.html#implementation">Implementation</a></li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/life-spec.html#style">Style</a></li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/life-spec.html#creative">Creative Aspect</a></li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/life-spec.html#faq">FAQ</a></li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/life-spec.html#extrafeatures">Extras</a></li>
+</ul>
+
+<p>
+	This problem is about C++ functions, strings, reading files, using libraries, and decomposing a large problem.
+</p>
+
+<p class="pairprogrammingno">
+	This is an <strong>individual assignment</strong>.
+	Write your own solution and do not work in a pair/group on this program.
+</p>
+
+
+<h2 id="links">Links:</h2>
+
+<div>
+	<div class="largefileboxwithdescription">
+		<div class="largefilebox starterziplink">
+			<a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/life-starter-files.zip"><img src="./Game-of-Life_files/icon48-zip.gif" class="iconlarge" alt="icon"><br>starter code</a>
+		</div>
+		
+		<div>
+			<p>
+				We provide a ZIP archive with a starter project that you should download and open with Qt Creator.
+				You will edit and turn in only the following files.
+				The ZIP contains other files/libraries; do not modify these.
+				Your code must work with the other files unmodified.
+			</p>
+
+			<ul>
+				<li>
+					<span class="filename">life.cpp</span>, the C++ code for your solution
+				</li>
+				<li>
+					<span class="filename">mycolony.txt</span>, your own unique Game of Life input file representing a bacterial colony's starting state
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="largefileboxwithdescription">
+		<div class="largefilebox">
+			<a class="popup honorcodelink" href="https://cs198.stanford.edu/paperless/" target="_blank"><img class="iconlarge" src="./Game-of-Life_files/icon48-paperless.gif" alt="icon"><br>turn in</a>
+		</div>
+
+		<div>
+			<p>
+				When you are finished, submit your assignment using our <strong>Paperless</strong> web system.
+				You can turn in all parts of the assignment together, or turn in each problem separately; it is up to you.
+			</p>
+		</div>
+	</div>
+
+	<div class="largefileboxwithdescription">
+		<div class="largefilebox">
+			<a class="demojarlink" href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/life-demo.jar"><img src="./Game-of-Life_files/icon48-jar.gif" class="iconlarge" alt="icon"><br>demo JAR</a>
+		</div>
+		
+		<div>
+			<p>
+				If you want to further verify the expected behavior of your program, you can download the following provided sample solution demo JAR and run it.
+				If the behavior of our demo in any way conflicts with the information in this spec, you should favor the spec over the demo.
+			</p>
+
+			<div><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/life-spec.html#"><strong>How to run it?</strong> (click to show)</a><div class="howtorunsamplesolution clicktoshow" rel="How to run it?" style="display: none;">
+<h3 id="howtorunsamplesolution" class="faqheading">"How do I run the assignment solution demos?"</h3>
+
+<p>
+	<!--
+	You can run our sample solutions two ways: on your machine as a downloadable program "JAR", or in your browser as an "applet".
+	We recommend trying the JAR first.
+	-->
+	Our assignments offer a solution 'demo' that you can run to see the program's expected behavior.
+	On many machines, all you have to do is download the .jar file, then double-click it to run it.
+	But on some Macs, it won't work; your operating system will say that it doesn't know how to launch the file.
+	If you have that issue, download the file, go to the Downloads folder in your Finder, right-click on the file, and click Open, and then press Confirm.
+</p>
+
+<p>
+	Some Mac users see a security error such as, "cs106x-life-demo.jar can't be opened because it is from an unidentified developer."
+	To fix this, go to System Preferences → Security &amp; Privacy.
+	You will see a section about downloaded apps.
+	You should see a prompt asking if you would like to allow access to our solution JAR.
+	Follow the steps and then you should be able to open the demo.
+	<!--
+	System Preferences &rarr; Java, and whitelisting the web site <strong>https://web.stanford.edu</strong> .
+	If you see this security error message, you can try to follow <a class="popup" href="http://www.java.com/en/download/help/jcp_security.xml">these instructions</a> about reducing your security restrictions for running Java applets.
+	-->
+</p>
+
+<p>
+	If all else fails, you could run the demo JAR from a terminal.
+	Every operating system allows you to open a "terminal" or "console" window for typing raw system commands.
+	Open your operating system's terminal or console window (Google if you need to learn how to do this),
+	and then type:
+</p>
+
+<pre class="terminal">cd <em>DIRECTORY_WHERE_DEMO_JAR_IS_STORED</em>
+java -jar <em>JAR_FILE_NAME</em>
+</pre>
+
+<p>
+	For example, on a Mac machine, if your user name is jsmith12 and you have saved a demo JAR named hw1.jar in your Documents/106a directory, you would type:
+</p>
+
+<pre class="terminal">cd /users/jsmith12/Documents/106a
+java -jar hw1.jar
+</pre>
+
+<p>
+	Or on a Windows machine, if your user name is jsmith12 and you have saved a demo JAR named hw1.jar in your Documents/106a directory, you would type:
+</p>
+
+<pre class="terminal">cd C:\users\jsmith12\Documents\106a
+java -jar hw1.jar
+</pre>
+
+			</div></div>
+		</div>
+	</div>
+</div>
+
+
+<h2 id="description">Program Description:</h2>
+
+<p>
+	The Game of Life (<a class="popup" href="http://en.wikipedia.org/wiki/Conway&#39;s_Game_of_Life" target="_blank">Wikipedia</a>) is a simulation by British mathematician <a class="popup" href="http://conwaylife.com/" target="_blank">J. H. Conway</a> in 1970.
+	The game models the life cycle of bacteria using a two-dimensional grid of cells.
+	Given an initial pattern, the game simulates the birth and death of future generations of cells using a set of simple rules.
+</p>
+
+<p>
+	In this assignment you will implement a simplified version of Conway's simulation and a basic user interface for watching the bacteria grow over time.
+</p>
+
+<p>
+	Your Game of Life program should begin by prompting the user for a file name and using that file's contents to set the initial state of your bacterial colony grid.
+	Then it will allow the user to advance the colony through generations of growth.
+	The user can type <code>t</code> (or just press Enter) to "tick" forward the bacteria simulation by one generation, or <code>a</code> to begin an animation loop that ticks forward the simulation by several generations, once every <strong>100 milliseconds</strong>; or <code>q</code> to quit.
+	When the user quits, the user is prompted Y/N to load another file or exit the program.
+	Your menu should be case-insensitive; for example, an uppercase or lowercase A, T, or Q should work.
+</p>
+
+
+<h2 id="logs">Example Logs of Execution:</h2>
+
+<p>
+	Here is an example log of interaction from your program (with user input <span class="userinput">bolded</span>).
+	Your output must match this format exactly to earn full credit.  (We are very picky.)
+</p>
+
+<pre class="output">Welcome to the CS 106X Game of Life!
+This program simulates the lifecycle of a bacterial colony.
+Cells (X) live and die by the following rules:
+* A cell with 1 or fewer neighbors dies.
+* Locations with 2 neighbors remain stable.
+* Locations with 3 neighbors will create life.
+* A cell with 4 or more neighbors dies.
+
+Grid input file name? <span class="userinput">foobar.txt</span>
+Unable to open that file.  Try again.
+Grid input file name? <span class="userinput">unknown.doc</span>
+Unable to open that file.  Try again.
+Grid input file name? <span class="userinput">this file does not exist LOLOLOL</span>
+Unable to open that file.  Try again.
+Grid input file name? <span class="userinput">simple.txt</span>
+---------
+---------
+---XXX---
+---------
+---------
+a)nimate, t)ick, q)uit? <span class="userinput">t</span>
+---------
+----X----
+----X----
+----X----
+---------
+a)nimate, t)ick, q)uit? <span class="userinput">t</span>
+---------
+---------
+---XXX---
+---------
+---------
+a)nimate, t)ick, q)uit? <span class="userinput">q</span>
+Load another file? (y/n) <span class="userinput">n</span>
+Have a nice Life!
+</pre>
+<div class="caption">Example log of execution</div>
+
+<p>
+	Here are some additional expected output files to compare.
+	Your program's Console window has a File → Compare Output feature for checking your output, as well as a Load Input Script feature that can auto-type the user console input for you.
+	Use them!
+</p>
+
+<ul class="filelist">
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/output/life-expected-output-1.txt"><img class="icon" src="./Game-of-Life_files/icon_txt.gif" alt="icon"> test #1</a> (simple/seeds)</li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/output/life-expected-output-2.txt"><img class="icon" src="./Game-of-Life_files/icon_txt.gif" alt="icon"> test #2</a> (snowflake)</li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/output/life-expected-output-3.txt"><img class="icon" src="./Game-of-Life_files/icon_txt.gif" alt="icon"> test #3</a> (glider)</li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/output/life-expected-output-4.txt"><img class="icon" src="./Game-of-Life_files/icon_txt.gif" alt="icon"> test #4</a> (spiral)</li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/output/life-expected-output-5.txt"><img class="icon" src="./Game-of-Life_files/icon_txt.gif" alt="icon"> test #5</a> (glider)</li>
+	<li><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/output/life-expected-output-6.txt"><img class="icon" src="./Game-of-Life_files/icon_txt.gif" alt="icon"> test #6</a> (diehard)</li>
+</ul>
+
+
+<h2 id="inputfiles">Game of Life Simulation Rules:</h2>
+
+<p>
+	Each grid location is either empty or occupied by a single living cell (X).
+	A location's neighbors are any cells in the surrounding eight adjacent locations.
+	In the example below, the shaded location has three neighbors containing living cells.
+</p>
+
+<table class="gameoflifetable">
+	<tbody><tr>	<td></td>	<td></td>	<td></td>	<td></td>	<td></td>	<td>X</td>	</tr>
+	<tr>	<td></td>	<td></td>	<td></td>	<td>X</td>	<td class="em">X</td>	<td></td>	</tr>
+	<tr>	<td></td>	<td></td>	<td></td>	<td>X</td>	<td></td>	<td></td>	</tr>
+	<tr>	<td>X</td>	<td></td>	<td></td>	<td></td>	<td></td>	<td></td>	</tr>
+</tbody></table>
+<div class="caption">Example Game of Life grid</div>
+
+<p>
+	The Game of Life world is <em>toroidal</em>; this means that it <strong>wraps around</strong> in both dimensions.
+	In other words, the top-most and bottom-most rows are considered to neighbor each other, as do the left-most and right-most columns.
+	For example, the top-right X square in the example above has two neighbors that contain living cells: the cell down/left from it, and the cell up/right from it (which is the grid's bottom-left cell).
+	To make sure that the definition of "neighbor" is well-defined, you may assume that the board's dimensions are at least 3x3.
+</p>
+
+<p>
+	The simulation starts with an initial pattern of cells on the grid and computes successive generations of cells according to the following rules:
+</p>
+
+<ul>
+	<li>
+		A location that has zero or one neighbors will be <strong>empty</strong> in the next generation.
+		If a cell was there, it dies.
+	</li>
+	<li>
+		A location with two neighbors is <strong>stable</strong>.
+		If it had a cell, it still contains a cell.
+		If it was empty, it's still empty.
+	</li>
+	<li>
+		A location with three neighbors <strong>will contain</strong> a cell in the next generation.
+		If it was unoccupied before, a new cell is born.
+		If it currently contains a cell, the cell remains.
+	</li>
+	<li>
+		A location with four or more neighbors will be <strong>empty</strong> in the next generation.
+		If there was a cell in that location, it dies of overcrowding.
+	</li>
+</ul>
+
+<p>
+	The births and deaths that transform one generation to the next all take effect simultaneously.
+	When you are computing a new generation, new births/deaths in that generation don't impact other cells in that generation.
+	Any changes (births or deaths) in a given generation <em>k</em> start to have effect on other neighboring cells in generation <em>k</em> + 1.
+</p>
+
+<p>
+	Check your understanding of the game rules by looking at the following example below.
+	The two patterns at right should alternate forever.
+</p>
+
+<div class="inlinetables">
+	<table class="gameoflifetable">
+		<tbody><tr>	<td></td>	<td></td>	<td></td>	<td></td>	<td></td>	</tr>
+		<tr>	<td></td>	<td></td>	<td>X</td>	<td></td>	<td></td>	</tr>
+		<tr>	<td></td>	<td></td>	<td>X</td>	<td></td>	<td></td>	</tr>
+		<tr>	<td></td>	<td></td>	<td>X</td>	<td></td>	<td></td>	</tr>
+		<tr>	<td></td>	<td></td>	<td></td>	<td></td>	<td></td>	</tr>
+	</tbody></table>
+
+	<table class="gameoflifetable">
+		<tbody><tr>	<td></td>	<td></td>	<td></td>	<td></td>	<td></td>	</tr>
+		<tr>	<td></td>	<td></td>	<td></td>	<td></td>	<td></td>	</tr>
+		<tr>	<td></td>	<td>X</td>	<td>X</td>	<td>X</td>	<td></td>	</tr>
+		<tr>	<td></td>	<td></td>	<td></td>	<td></td>	<td></td>	</tr>
+		<tr>	<td></td>	<td></td>	<td></td>	<td></td>	<td></td>	</tr>
+	</tbody></table>
+</div>
+<div class="caption">Alternating pattern</div>
+
+<p>
+	Here is another example.
+	The pattern below does not change on each iteration, because each cell has exactly three living neighbors.
+	This is called a "stable" pattern or a "still life".
+</p>
+
+<table class="gameoflifetable">
+	<tbody><tr>	<td></td>	<td></td>	<td></td>	<td></td>	<td></td>	</tr>
+	<tr>	<td></td>	<td>X</td>	<td>X</td>	<td></td>	<td></td>	</tr>
+	<tr>	<td></td>	<td>X</td>	<td>X</td>	<td></td>	<td></td>	</tr>
+	<tr>	<td></td>	<td></td>	<td></td>	<td></td>	<td></td>	</tr>
+	<tr>	<td></td>	<td></td>	<td></td>	<td></td>	<td></td>	</tr>
+</tbody></table>
+<div class="caption">Stable "still life" pattern</div>
+
+
+<h2 id="inputfiles">Input Files:</h2>
+
+<p>
+	The grid of bacteria in your program gets its initial state from one of a set of provided input text files, which follow a particular format.
+	When your program reads the grid file, you should re-prompt the user if the file specified does not exist.
+	If it does exist, you may assume that all of its contents are valid and follow the proper format.
+	You do not need to write any code to handle a misformatted file.
+	The behavior of your program in such a case is not defined in this spec; it can crash, it can terminate, etc.
+	Note that the input file name might contain spaces.
+</p>
+
+<p>
+	In each input file, the first two lines will contain integers <em>r</em> and <em>c</em> representing the number of rows and columns in the grid, respectively.
+	The next lines of the file will contain the grid itself, a set of characters of size <em>r</em> x <em>c</em> with a line break (<code>\n</code>) after each row.
+	Each grid character will be either a <code>'-'</code> (minus sign) for an empty dead cell, or an <code>'X'</code> (uppercase X) for a living cell.
+	The input file might contain additional lines of information after the grid lines, such as comments by its author or even junk/garbage data; any such content should be ignored by your program.
+	You may assume that the world's size is at least 3x3.
+</p>
+
+<p>
+	The input files will exist in the same working directory as your program.
+	For example, the following text might be the contents of a file <span class="filename">simple.txt</span>, a 5x9 grid with 3 initially live cells:
+</p>
+
+<div class="filewithlinenumbers">
+	<pre class="linenumbers">1
+2
+3
+4
+5
+6
+7
+</pre>
+
+	<pre class="inputfile">5
+9
+---------
+---------
+---XXX---
+---------
+---------
+</pre>
+</div>
+<div class="caption">Contents of input file <span class="filename">simple.txt</span></div>
+
+
+<h2 id="implementation">Implementation Details:</h2>
+
+<p>
+	Your program will be graded on functionality and style.
+	To achieve a high functionality score, test your program thoroughly with the provided input files and your own test inputs.
+	Here are some specific details about our expectations for your implementation:
+</p>
+
+<p>
+	<em>Grid:</em>
+	The grid of bacterial cells could be stored in a 2-dimensional array, but arrays in C++ lack some features and are generally difficult for new students to use.
+	They do not know their own length, they cause strange bugs if you try to index out of the bounds of the array, and they require understanding C++ topics such as pointers and memory allocation.
+	So instead of using an array to represent your grid, you must use an object of the <code>Grid</code> class (<a class="popup" href="http://web.stanford.edu/~stepp/cppdoc/Grid-class.html" target="_blank">documentation</a>), which is part of the provided Stanford C++ library.
+	A <code>Grid</code> object offers a cleaner abstraction of a 2-dimensional data set, with several useful methods and features.
+</p>
+
+<p>
+	Since you don't know the size of the grid until you read the input file, you can call <code>resize</code> on the <code>Grid</code> object once you know the proper size.
+	You can also use the <code>=</code> assignment operator to copy the state of one <code>Grid</code> object to another.
+	See the course lecture examples, section 5.1 of the <em>Programming Abstractions in C++</em> textbook, and/or the online <code>Grid</code> documentation for more information about the Grid class.
+</p>
+
+<p>
+	<em>Checking for valid input:</em>
+	Your program needs to check for valid user input in a few places.
+	When the user types the grid input file name, you must ensure that the file exists, and if not, you must re-prompt the user to enter a new file name.
+	If the user is prompted to enter an action such as <code>t</code> for tick or <code>a</code> for animate, if the user types anything other than the three predefined commands of <code>a</code>, <code>t</code>, <code>q</code> (case-insensitively), you should re-prompt the user to enter a new command.
+	(Note that just pressing Enter at that prompt should be treated the same as pressing <code>t</code> and should 'tick' the colony forward to its next generation.)
+	If the user is prompted to enter an integer such as the number of frames of animation for the <code>a</code> command, your code should re-prompt the user if they type a non-integer token of input.
+	(If they type a negative integer, you should simply not perform the animation and return to the main menu.)
+	There are several functions from the Stanford C++ library that can help you with this functionality, such as <code>fileExists</code> and <code>getInteger</code>.
+	These functions come from Stanford library files <code>"filelib.h"</code> (<a class="popup" href="http://web.stanford.edu/~stepp/cppdoc/filelib.html" target="_blank">documentation</a>)
+	and <code>"simpio.h"</code> (<a class="popup" href="http://web.stanford.edu/~stepp/cppdoc/simpio.html" target="_blank">documentation</a>).
+</p>
+
+<p>
+	<em>Animation:</em>
+	When the user selects the animation option, the console output should look like the following:
+</p>
+
+<pre class="output">a)nimate, t)ick, q)uit? <span class="userinput">a</span>
+How many frames? <span class="userinput">xyz</span>
+Illegal integer format. Try again.
+How many frames? <span class="userinput">5</span>
+  <em>(five new generations are shown, with screen clear and 100ms pause before each)</em>
+</pre>
+
+<p>
+	It is hard to show an example of animation output in this handout because the output does not translate well to a plain-paper format.
+	The screen is supposed to clear between each generation of cells, leading to what looks like a smooth animation effect.
+	Run the Demo Solution from the class web site to see how animation should work.
+</p>
+
+<p>
+	To help you perform animation, use the following global functions from the Stanford C++ library "console.h" (<a class="popup" href="http://web.stanford.edu/~stepp/cppdoc/console.html" target="_blank">documentation</a>):
+</p>
+
+<table class="methodtable">
+	<tbody><tr>
+		<td><code>clearConsole();</code></td>
+		<td>Erases all currently visible text from the output console. <em>(call this between frames)</em></td>
+	</tr>
+	<tr>
+		<td><code>pause(<var>ms</var>);</code></td>
+		<td>Causes the program to halt execution for the given number of milliseconds.</td>
+	</tr>
+</tbody></table>
+
+
+<p>
+	<em>I/O:</em>
+	Your program has a console-based user interface.
+	You should pop up the Stanford graphical console by including <code>"console.h"</code> (<a class="popup" href="http://web.stanford.edu/~stepp/cppdoc/console.html" target="_blank">documentation</a>) in your program.
+	Produce console output using <code>cout</code> and read console input using <code>cin</code>.
+	You may use the Stanford C++ library's console-related functions such as <code>getLine</code> (uppercase L) to read from the console.
+	See <code>simpio.h</code> (<a class="popup" href="http://web.stanford.edu/~stepp/cppdoc/simpio.html" target="_blank">documentation</a>) for more details.
+</p>
+
+<p>
+	You will also write code for reading input files.
+	Read a file using an <code>ifstream</code> object (<a class="popup" href="http://www.cplusplus.com/reference/fstream/ifstream/" target="_blank">documentation</a>), along with functions such as <code>getline</code> (lowercase L) to read lines from the file.
+	If a given line contains an integer or numeric token, call <code>stringToInteger</code> to convert it.
+	See <code>strlib.h</code> (<a class="popup" href="http://web.stanford.edu/~stepp/cppdoc/strlib.html" target="_blank">documentation</a>) for more details.
+	Make sure to close your input file streams when done reading.
+</p>
+
+<p>
+	<em>Strings:</em>
+	A non-trivial part of the program involves string manipulation.
+	You may want to look up members of the C++ <code>string</code> class (<a class="popup" href="http://www.cplusplus.com/reference/string/string/" target="_blank">documentation</a>) such as <code>find</code>, <code>length</code>, <code>substr</code>, and so on.
+</p>
+
+
+<h2 id="gui">Graphical User Interface (GUI):</h2>
+
+<div class="figure">
+	<img src="./Game-of-Life_files/life-gui-screenshot.png" alt="screenshot">
+</div>
+
+<p>
+	As a required part of this assignment, you must also add code to use an instructor-provided graphical user interface (GUI) with your program.
+	The GUI does not replace the console UI; it can't be clicked on to play the game, for example.
+	It just shows a display of the current game state.
+	The GUI should first appear when the program's console pops up, and it should draw the colony state for each generation.
+	To use the GUI, include <code>"lifegui.h"</code> in your code, then call the functions below:
+</p>
+
+<table class="methodtable">
+	<tbody><tr>
+		<th>Function Name</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td><code>LifeGUI::clear();</code></td>
+		<td>Erases any filled circles for cells in the grid.</td>
+	</tr>
+	<tr>
+		<td><code>LifeGUI::fillCell(<var>row</var>, <var>col</var>);</code></td>
+		<td>
+			Draws a black circle for the cell at the specific row and column.
+			The cell will not immediately appear on the screen; the client must also call <code>repaint</code> to see any newly drawn cells.
+			The idea is that on each generation of your simulation, you should call <code>fillCell</code> on all living cell locations, and then call <code>repaint</code> once to see all of the changes.
+			If the location given is not in bounds, an error is thrown.
+		</td>
+	</tr>
+	<tr>
+		<td><code>LifeGUI::initialize();</code></td>
+		<td>
+			Sets up the state of the GUI and pops up the GUI window on the screen.
+			This needs to be called only once by the client.
+		</td>
+	</tr>
+	<tr>
+		<td><code>LifeGUI::repaint();</code></td>
+		<td>
+			Redraws the GUI window, showing any newly drawn cells that have been drawn using <code>fillCell</code> since the window was last repainted.
+
+		</td>
+	</tr>
+	<tr>
+		<td><code>LifeGUI::resize(<var>rows</var>, <var>cols</var>);</code></td>
+		<td>
+			Informs the GUI about the given number of total rows and columns in the simulation.
+			Calling this will erase the graphics window completely,
+			draw a black border around the simulation rectangle which is centered in the window,
+			and draw light gray grid lines around each cell.
+			This function can be used at the beginning of a simulation or between generations to clear the window before drawing the next generation.
+		</td>
+	</tr>
+	<tr>
+		<td><code>LifeGUI::shutdown();</code></td>
+		<td>Closes the GUI window and shuts down the GUI.</td>
+	</tr>
+</tbody></table>
+
+
+<h2 id="style">Style Details:</h2>
+
+<p>
+	Your Life program is subject to the same style constraints as specified on the <a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/madlibs-spec.html#style">Mad Libs spec</a>.
+	Please read that spec's Style Details section and follow its guidelines.
+	In addition, the following additional style details/changes apply specifically to this problem:
+</p>
+
+<ul>
+	<li>
+		The <code>main</code> function should not perform too large a share of the overall work itself directly, such as reading the lines of the input file or performing the calculations to update the grid from one generation to the next.
+	</li>
+
+	<li>
+		The Part A Mad Libs spec forbids the usage of collections.
+		On this part, you are allowed to use a single <code>Grid</code> object to represent the cells of the game.
+		Do not use any other collections/arrays/containers/etc.
+	</li>
+</ul>
+
+
+<h2 id="creative">Creative Aspect, <span class="filename">mycolony.txt</span>:</h2>
+
+<p>
+	Along with your code, submit a file <span class="filename">mycolony.txt</span> that contains a valid initial colony that can be used as input.
+	This can be anything you want, as long as it is a non-trivial file in the input grid file format described in this document, and is your own work (not just a copy of an instructor-provided colony input file).  This is worth a small part of your grade.
+</p>
+
+
+<h2 id="faq">Frequently Asked Questions (FAQ):</h2>
+
+<p>
+	For each assignment problem, we receive various frequent student questions.
+	The answers to some of those questions can be found by clicking the link below.
+</p>
+
+<div><a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/life-spec.html#"><strong>Life FAQ</strong> (click to show)</a><div class="faqarea clicktoshow" rel="Life FAQ" style="display: none;">
+<p>
+	NOTE: On this first assignment, many students have issues with setting up their Qt Creator software.
+	If your problem or issue is more about that software than it is about HW1 specifically, you should also check out our <a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/qt-creator-troubleshooting.shtml">Qt Creator troubleshooting page</a> for possible solutions.
+</p>
+
+<dl>
+	<dt id="partners">
+		Q: Can I work with a partner on this assignment?
+	</dt>
+	<dd>
+		A: No.
+		This assignment is an individual assignment, so you should work individually and submit your own solution.
+		Do not show your code to any other student and do not develop your solution with a partner.
+	</dd>
+
+	<dt id="qtcreator">
+		Q: You said I need to use Qt Creator to write my homework, but I prefer a different editor (Visual Studio, Xcode, Eclipse, Netbeans, vim, emacs, etc.).
+		Can I use my favorite editor instead of Qt Creator?
+	</dt>
+	<dd>
+		A: Probably not.
+		We don't support this.
+		We are giving you out a starter project in Qt Creator's format, so if you were trying to use a different editor, you'd have to disassemble that starter project and put it back together in your editor's format, which might be difficult.
+		Also, if you have any problems getting things to work in your editor, we will not be willing to help you fix them.
+	</dd>
+
+	<dt id="qtcreatorfail">
+		Q: I'm having trouble getting Qt Creator to work!  Help!
+	</dt>
+	<dd>
+		A: Please make sure you followed the instructions in our <a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/qt-creator.shtml">Qt Creator</a> page.
+		If you are still having trouble, please see our <a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/qt-creator-troubleshooting.shtml">Tricky C++ Issues</a> page for some possible solutions.
+	</dd>
+
+	<dt id="permissiondenied">
+		Q: When I try to compile my program I see an error message, "cannot open output file ...\Life.exe: Permission denied".
+		What does it mean?
+		How do I fix it?
+	</dt>
+	<dd>
+		A: It means that your Life executable is still running from the last time you ran/tested the program a moment ago.
+		Make sure to shut down any previously running instances of your program.
+		Click Qt Creator's "3 Application Output" tab and click any of the red square "stop" sign buttons you see.
+		You might also need to open your operating system's Task Manager to stop them all.
+	</dd>
+
+	<dt id="constructgrid">
+		Q: How do I construct a <code>Grid</code>?
+		I tried saying <code>new Grid</code> but it didn't compile.
+	</dt>
+	<dd>
+		A: Constructing an object in C++ has a different syntax than in Java.
+		Instead of saying <code>new</code>, you just write a statement such as:
+
+		<pre>Grid&lt;<em>type</em>&gt; <em>name</em>;
+</pre>
+
+		<p>
+			For example, if you wanted to declare a grid of <code>double</code>s and call the variable <code>myGrid</code>, you would write:
+		</p>
+
+		<pre>Grid&lt;double&gt; myGrid;
+</pre>
+	</dd>
+
+	<dt id="array">
+		Q: Do I have to use a <code>Grid</code> on the assignment?
+		Can I just use an array?
+	</dt>
+	<dd>
+		A: Yes, you must use a <code>Grid</code>.
+		Using an array will not receive full credit.
+	</dd>
+
+	<dt id="stl">
+		Q: Can I use one of the STL containers from the C++ standard library, instead of a <code>Grid</code>?
+	</dt>
+	<dd>
+		A: No; you should use the <code>Grid</code>.
+	</dd>
+
+	<dt id="advancedmaterial">
+		Q: I already know a lot of C/C++ from my previous programming experience.
+		Can I use advanced features, such as pointers, on this assignment?
+	</dt>
+	<dd>
+		A: No; you should limit yourself to using the material that was taught in class so far.
+	</dd>
+
+	<dt id="files">
+		Q: Can I add any other files to the program, other than <code>life.cpp</code>?
+		Can I add some classes to the program?
+	</dt>
+	<dd>
+		A: No; you should limit yourself to <code>life.cpp</code> and functions defined in that file.
+	</dd>
+
+	<dt id="fileiocharbychar">
+		Q: I am having trouble reading the grid from the file, character-by-character.
+		How do I detect the line endings and how do I know how many characters to read?
+	</dt>
+	<dd>
+		A: We don't recommend reading the file character-by-character.
+		Instead, repeatedly call <code>getline</code> on the file and then process that entire line.
+		If the line contains an integer or numeric token, call <code>stringToInteger</code> to convert it.
+		See <code>strlib.h</code> (<a class="popup" href="http://web.stanford.edu/~stepp/cppdoc/strlib.html" target="_blank">documentation</a>) for more details.
+	</dd>
+
+	<dt id="countneighbors">
+		Q: How do I count the neighbors of a cell?
+	</dt>
+	<dd>
+		A: Examine the eight squares around it.
+		Be careful not to go out of the bounds of the grid, if the square you're examining is on an edge of the grid.
+		Also be careful not to count the current cell itself as a neighbor.
+		We suggest inserting temporary debugging statements to <code>cout</code> to show you what your program is examining along the way.
+		For example, as you look at each square, print the row/column numbers, along with how many neighbors you count for that cell or which cells you think have living neighbors in them.
+	</dd>
+
+	<dt id="fileio">
+		Q: I am having trouble reading the input files.
+		It always crashes with a "file not found" error.
+		What is wrong?
+	</dt>
+	<dd>
+		A: Remember that the input files are in the same directory as your program, so if the user types <code>"foo.txt"</code> you need to open <code>"foo.txt"</code> in your code with no path or directory name in front of the file name.
+		The grid input files should be found in the starter ZIP file in the <code>res</code> subdirectory of the overall project.
+		That's also where you can put your own custom <code>mycolony.txt</code> file later when you make it.
+	</dd>
+
+	<dt id="constructgriderror">
+		Q: What does this error mean?
+
+<pre>error: invalid initialization of non-const reference of type 'Grid&lt;foo&gt;&amp;' from an rvalue of type 'Grid&lt;foo&gt; (*)()'
+</pre>
+	</dt>
+	<dd>
+		A: This can happen when you declare your <code>Grid</code> in the wrong way:
+
+		<pre>Grid&lt;<em>type</em>&gt; <em>name</em><strong class="bad">()</strong>;   // no
+Grid&lt;<em>type</em>&gt; <em>name</em>;     // yes
+</pre>
+
+		<p>
+			For example, if you wanted to declare a grid of <code>double</code>s and call the variable <code>myGrid</code>, you would write:
+		</p>
+
+		<pre>Grid&lt;double&gt; myGrid;
+</pre>
+	</dd>
+
+
+	<dt id="symbolnotfounderror">
+		Q: What does this error mean?
+
+<pre>error: symbol(s) not found for architecture x86_64
+</pre>
+	</dt>
+	<dd>
+		A: This can happen when you are trying to call a function that you have not declared, or call a function with the wrong parameters.
+		Remember that you need to declare function prototypes (the function's name and parameters followed by a semicolon) at the top of your program for <code>main</code> to be able to see them.
+
+		<p>
+			Try clicking the "4 Compiler Output" tab button near the bottom of Qt Creator and reading the detailed output about exactly what symbol was not defined.
+		</p>
+	</dd>
+
+	<dt id="passifstream">
+		Q: Why can't I pass an <code>ifstream</code> file input stream as a parameter?
+	</dt>
+	<dd>
+		A: You must pass it by reference.
+	</dd>
+
+	<dt id="outputbuffer">
+		Q: My output seems to be "jerky"; sometimes things won't print out when I think they should, and then later a bunch of output prints all at once.
+		Why would this be happening?
+	</dt>
+	<dd>
+		A: It might have to do with <code>\n</code> vs <code>endl</code> and something called output buffering.
+		When you print to <code>cout</code>, it doesn't always immediately send the output to the console.
+		This is because sending output to the console is somewhat slow/expensive, so for example if you print a grid character-by-character, it is slow to individually print every single character.
+		So <code>cout</code> has an internal buffer in which it stores the characters you tell it to print.
+		Periodically, <code>cout</code> decides to flush out this buffer and print everything you told it to print.
+
+		<p>
+			One way to force <code>cout</code> to flush out all of its buffered output is to print <code>endl</code>.
+			Note that it does NOT flush the output if you print <code>"\n"</code> instead of <code>endl</code>.
+			So most of the time, if you're seeing weirdly delayed output, it's because you are doing <code>cout &lt;&lt; something &lt;&lt; "\n";</code> instead of the preferred, <code>cout &lt;&lt; something &lt;&lt; <strong>endl</strong>;</code>
+		</p>
+
+		<p>
+			Another way to force <code>cout</code> to flush out any buffered output is to say, <code>cout.flush();</code>
+		</p>
+	</dd>
+
+	<dt id="animation">
+		Q: How do I do animation?
+	</dt>
+	<dd>
+		A: It's the same as doing a single tick to the next generation, but you do it repeatedly.
+		Between ticks, pause the simulation (<code>pause</code>) and also clear the console text (<code>clearConsole</code>) so that the animation looks smooth.
+	</dd>
+
+	<dt id="animationclear">
+		Q: The expected output files don't appear to "clear" the console between frames of animation.
+		Why not?  Which should I follow, the spec or the expected output files?
+	</dt>
+	<dd>
+		A: You should follow the spec and clear the console between frames of animation.
+		The expected output files can't really show the console clearing because there's no way to show that in a flat text file.
+		You can still match their output by copy-pasting from the bottom "3 Application Output" tab of Qt Creator.
+	</dd>
+
+	<dt id="pregrade">
+		Q: Will my solution get full credit?
+		Is it written in the style you want?
+		Will I get marked off for this code?
+	</dt>
+	<dd>
+		A: In general we cannot answer these kinds of questions.
+		We call this "pre-grading."
+		The section leader/TA/instructor can't look over your entire program for mistakes or tell you exactly what things you will get marked off for; we don't have the resources to provide such a service, and even if we did, we want you to learn how to gain these intuitions on your own.
+		We'll grade you on the guidelines in the homework document, and we can help you with specific issues and questions about your code, but we cannot pre-evaluate your entire program for you or give you advance warning about every possible mistake or violation.
+	</dd>
+
+	<dt id="creativeindex">
+		Q: Is my <code>mycolony.txt</code> file okay?
+		Will it get full credit?
+	</dt>
+	<dd>
+		A: Our grading is pretty lenient on a creative part aspect like this.
+		If it meets the criteria in the assignment spec, it should get full credit, even if it is not particularly creative or exciting.
+	</dd>
+</dl>
+
+</div></div>
+
+
+<h2 id="extrafeatures">Possible Extra Features:</h2>
+
+<p>
+	Though your solution to this assignment must match all of the specifications mentioned previously, it is allowed and encouraged for you to add extra features to your program if you'd like to go beyond the basic assignment.
+	Note that our motivation for allowing extra features is to encourage your creativity, not inflate your grade; so if any points are given for your extra features, they will be minimal.
+	The purpose is to explore the assignment domain further, not to disrupt the class grading curve.
+	Make sure to see the notes below about how to separate your extra code and how to turn it in properly.
+</p>
+
+<p>
+	Here are some example ideas for extra features that you could add to your program:
+</p>
+
+<ul>
+	<li>
+		<strong>Random world generation:</strong>
+		Add special logic so that when the user is prompted for an input file name, if they type the word "random", instead of loading your input from a file, your program will randomly generate a game world of a given random size.
+		That is, your code will randomly pick a grid width and height (of at least 1), and then randomly decide whether to make each grid cell initially living or dead.
+		This way you can generate infinite possibilities of new game worlds each time you run the program.
+	</li>
+
+	<li>
+		<strong>Cells that "age":</strong>
+		In the basic simulation, cells are either alive or dead with nothing in between.
+		But as an extension, perhaps you could make cells that remember how many generations they have been alive and act differently (different character, different color, etc.) on screen depending on their age.
+	</li>
+
+	<li>
+		<strong>GUI enhancements:</strong>
+		Do you want to add a feature to the provided graphical interface?
+		If so, tweak the provided GUI files and submit them with your turnin.
+		We haven't taught about GUI programming, but if you want to look at the provided files and learn how they work, we encourage you to do so.
+	</li>
+</ul>
+
+<p>
+	<em>Indicating that you have done extra features:</em>
+	If you complete any extra features, then in the comment heading on the top of your program, please list all extra features that you worked on and where in the code they can be found (what functions, lines, etc. so that the grader can look at their code easily).
+</p>
+
+<p>
+	<em>Submitting a program with extra features:</em>
+	Since we use automated testing for part of our grading process, it is important that you submit a program that conforms to the preceding spec, even if you want to do extra features.
+	If your feature(s) cause your program to change the output that it produces in such a way that it no longer matches the expected sample output test cases provided, you should submit two versions of your program file:
+	a first one named <span class="filename">life.cpp</span> without any extra features added (or with all necessary features disabled or commented out), and a second one named <span class="filename">life-extra.cpp</span> with the extra features enabled.
+	Please distinguish them in by explaining which is which in the comment header.
+	Our turnin system saves every submission you make, so if you make multiple submissions we will be able to view all of them; your previously submitted files will not be lost or overwritten.
+</p>
+
+
+			<hr>
+
+			<p>
+				<em>Survey:</em>
+				After you turn in the assignment, we would love for you to fill out our <a class="popup" href="http://goo.gl/forms/abir2WG4ob" target="_blank">anonymous CS 106X homework survey</a> to tell us how much you liked / disliked the assignment, how challenging you found it, how long it took you, etc.
+				This information helps us improve future assignments.
+			</p>
+
+			<p>
+				<em>Honor Code Reminder:</em>
+				Please remember to follow the <strong>Honor Code</strong> when working on this assignment.
+				Submit your own work and do not look at others' solutions.
+				Also please do not give out your solution and do not place a solution to this assignment on a public web site or forum.
+				If you need help, please seek out our available resources to help you.
+			</p>
+
+			<p class="copyright">
+				Copyright © Stanford University, Marty Stepp, Victoria Kirst.
+				Licensed under Creative Commons Attribution 2.5 License.  All rights reserved.
+			</p>
+
+		</div> <!-- mainarea -->
+
+
+		<div id="honorcodemessage" class="popupwindow" style="display: none">
+			<div class="popupwindowbody">
+				<h2>Honor Code Reminder:</h2>
+				<p>
+					You are expected to follow the <a class="popup" href="http://honorcode.stanford.edu/" target="_blank"><strong>Stanford Honor Code</strong></a>.
+				</p>
+
+				<ul>
+					<li>
+						In your file's comment header, list both partners' names; also cite <em>all</em> sources of help, including books, web pages, friends, section leaders, etc.
+					</li>
+					<li>
+						Do not consult any assignment solutions that are not your (pair's) own.
+					</li>
+					<li>
+						Do not attempt to disguise any code that is not your (pair's) own.
+					</li>
+					<li>
+						Do not give out your assignment solution to another student (outside of your pair).
+					</li>
+					<li>
+						Do not post your homework solution code online.  (e.g. PasteBin, DropBox, web forums).
+					</li>
+					<li>
+						Please take steps to ensure that your (pair's) work is not easily copied by others.
+					</li>
+				</ul>
+				
+				<p>
+					Remember that we run <strong>similarity-detection software</strong> over all solutions,
+					including this quarter and past quarters, as well as any solutions we find on the web.
+				</p>
+
+				<div class="popupwindowbuttons">
+					<button id="honorcodeaccept">
+						<img src="./Game-of-Life_files/icon_ok.gif" alt="icon">
+						I understand
+					</button>
+					<button id="honorcodecancel">
+						<img src="./Game-of-Life_files/icon_cancel.gif" alt="icon">
+						Cancel
+					</button>
+				</div>
+
+				<p>
+					<strong>If you need help</strong> solving an assignment, we are happy to help you.
+					You can go to the <a class="popup" href="https://pointer3.stanford.edu/shifts" target="_blank">LaIR</a>,
+					or the <a class="popup" href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/piazza.shtml" target="_blank">course message forum</a>,
+					or <a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/staff.shtml">email your section leader</a>,
+					or visit the instructor / head TA during office hours.
+					<strong>You can do it!</strong>
+				</p>
+
+				<p>
+					See <a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/handouts.shtml">Course Information handout</a> for full Honor Code policies, or <a href="https://web.stanford.edu/class/archive/cs/cs106x/cs106x.1182/homework/1/staff.shtml">email us</a> if you have any questions.
+				</p>
+			</div>
+		</div>
+
+	
+
+
+</body></html>
